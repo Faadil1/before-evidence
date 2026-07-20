@@ -1,0 +1,26 @@
+{
+  "name": "before-evidence",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "test": "vitest run --pool=threads"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "latest",
+    "next": "latest",
+    "openai": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "zod": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "7.0.2",
+    "vitest": "latest"
+  }
+}
