@@ -12,12 +12,14 @@
     "@ai-sdk/openai": "latest",
     "next": "latest",
     "openai": "latest",
+    "pg": "^8.22.0",
     "react": "latest",
     "react-dom": "latest",
     "zod": "latest"
   },
   "devDependencies": {
     "@types/node": "latest",
+    "@types/pg": "^8.20.0",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "typescript": "^5.9.3",
