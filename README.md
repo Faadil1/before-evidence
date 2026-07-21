@@ -10,7 +10,7 @@ Case -> Commitment -> Server Lock -> Evidence Reveal -> Interpretation -> Belief
 GPT-5.6 acts as an epistemic auditor. It evaluates the locked commitment, fixed evidence, interpretation, confidence change, and deterministic comparisons. It never selects, generates, or modifies evidence.
 
 ## Architecture
-Next.js App Router with TypeScript, Zod validation, server route handlers, a server-only fixed scenario module, and Postgres-backed session persistence. Commitment locking is enforced in the database with an atomic status-guarded update. The audit uses the OpenAI Responses API with strict structured output validation.
+Next.js App Router with TypeScript, Zod validation, server route handlers, a server-only fixed scenario module, and Postgres-backed session persistence. Commitment locking is enforced in the database with an atomic status-guarded update. The audit uses OpenRouter's OpenAI-compatible chat completions endpoint with strict JSON schema output and server-side Zod validation.
 
 ## Local setup
 
@@ -21,15 +21,21 @@ npm run dev
 
 Open http://localhost:3000.
 
-For local runtime sessions, set `DATABASE_URL` to a Postgres database. Tests use an isolated in-memory store and do not require database credentials.
+For local runtime sessions, set `DATABASE_URL` to a Postgres database. Tests use an isolated in-memory store and do not require database credentials or model API calls.
 
 ## Environment variables
 
 `DATABASE_URL` is required for deployed runtime persistence. Use Vercel Postgres, Neon Postgres, or another Postgres database available to the hosting environment.
 
-`OPENAI_API_KEY` is required only in the hosting environment or local `.env.local`. Never expose it in client code or commit it. `OPENAI_MODEL` is optional and defaults to `gpt-5.6`.
+`OPENROUTER_API_KEY` is required for production audits. Configure it only in the hosting provider environment or local `.env.local`. Never expose it in client code or commit it.
 
-Without `OPENAI_API_KEY`, the audit returns an honest error and never produces a simulated result.
+`OPENROUTER_MODEL` is required for production audits. The selected GPT-5.6 OpenRouter model slug is `openai/gpt-5.6-sol-20260709`, verified from OpenRouter's model catalog on 2026-07-20.
+
+`OPENROUTER_SITE_URL` and `OPENROUTER_SITE_NAME` are optional server-only OpenRouter attribution headers. Empty values are not sent.
+
+Direct OpenAI billing is not required. OpenRouter usage remains server-side only, and no API secrets belong in GitHub.
+
+Without complete OpenRouter configuration, the audit returns an honest error and never produces a simulated result.
 
 ## Tests
 
@@ -39,11 +45,11 @@ npm test
 npm run build
 ```
 
-The integration suite covers session isolation, one-time locking, evidence guards, stable evidence versions, audit packet integrity, missing API configuration, structured audit validation, and the store lock contract.
+The integration suite covers session isolation, one-time locking, evidence guards, stable evidence versions, audit packet integrity, missing OpenRouter configuration, structured audit validation, malformed provider output, provider failure, and the store lock contract.
 
 ## Deployment notes
 
-Deploy the `main` branch to Vercel. Configure `DATABASE_URL` and `OPENAI_API_KEY` only through the hosting provider environment-variable system. Do not commit `.env` files or database credentials.
+Deploy the `main` branch to Vercel. Configure `DATABASE_URL`, `OPENROUTER_API_KEY`, and `OPENROUTER_MODEL` only through the hosting provider environment-variable system. Do not commit `.env` files, API keys, or database credentials.
 
 Production URL: pending deployment.
 
