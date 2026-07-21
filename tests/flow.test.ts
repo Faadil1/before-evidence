@@ -38,3 +38,16 @@ describe("deterministic text quality",()=>{
  it("accepts meaningful French and technical percentage language",()=>{const french={claim:"La nouvelle séquence d accueil augmente l activation des nouveaux comptes.",confidence:55,rival1:"Le mélange des canaux acquisition a changé pendant le test.",rival2:"Un effet de nouveauté temporaire modifie le comportement.",prediction:"L activation augmente pour les nouveaux comptes.",refutation:"Une hausse inférieure à 10% compterait contre la thèse.",design:"Comparer un groupe témoin et une variante pendant 14 jours en mesurant l activation."};expect(validateOperationalCommitment(french)).toEqual({});expect(validateOperationalCommitment({...complete,prediction:"API conversion lift exceeds 10% for B2B cohorts."}).prediction).toBeUndefined();});
  it("rejects repeated tokens and next-experiment gibberish",()=>{expect(quality("test test test test test test",4).valid).toBe(false);expect(validateOperationalInterpretation("The evidence supports the claim and implies a segment-specific effect.","asdfasdfasdf 18% 14 days ;;;;;").next).toBeTruthy();});
 });
+
+describe("claim validator regression",()=>{
+ it("accepts complete operational claims without rigid templates",()=>{
+  expect(validateOperationalCommitment({...complete,claim:"The revised onboarding sequence increases day-7 activation among eligible new accounts."}).claim).toBeUndefined();
+  expect(validateOperationalCommitment({...complete,claim:"La nouvelle séquence d’intégration augmente l’activation au septième jour chez les nouveaux comptes admissibles."}).claim).toBeUndefined();
+  expect(validateOperationalCommitment({...complete,claim:"Higher cache latency reduces successful checkout completion."}).claim).toBeUndefined();
+ });
+ it("rejects non-operational and meaningless claims",()=>{
+  expect(validateOperationalCommitment({...complete,claim:"asdjkl;lkjhjkh 18% during 14 days"}).claim).toBeTruthy();
+  expect(validateOperationalCommitment({...complete,claim:"onboarding onboarding onboarding increase increase"}).claim).toBeTruthy();
+  expect(validateOperationalCommitment({...complete,claim:"The revised onboarding sequence."}).claim).toBeTruthy();
+ });
+});
