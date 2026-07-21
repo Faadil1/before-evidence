@@ -1,6 +1,7 @@
+import { readFileSync } from "node:fs";
 import { describe,it,expect } from "vitest";
 import { auditCanSubmit, auditHierarchy, canEnterReview, cancelSeal, commitmentPlaceholders, confidenceDelta, confirmSeal, emptyCommitment, formatSealedAt, isPostLockReadOnly, recoverableAuditMessage, sealedHeaderUsesDocumentFlow, validateCommitmentDraft, validateInterpretationDraft } from "../lib/flow";
-import { canonicalCommitmentRecord, canonicalJson, canonicalSealedString, compareVerification, buildExport, markdownExport, normalizedVerdictLabel, parseExport, preSealChecks, recordSchemaVersion } from "../lib/record";
+import { canonicalCommitmentRecord, canonicalJson, canonicalSealedString, compareVerification, buildExport, markdownExport, formatDimensionLabel, formatEnumLabel, formatRelationshipLabel, normalizedVerdictLabel, parseExport, preSealChecks, recordSchemaVersion } from "../lib/record";
 import { normalizedVerdictSchema } from "../lib/domain";
 import { quality, validateOperationalCommitment, validateOperationalInterpretation } from "../lib/quality";
 
@@ -50,4 +51,20 @@ describe("claim validator regression",()=>{
   expect(validateOperationalCommitment({...complete,claim:"onboarding onboarding onboarding increase increase"}).claim).toBeTruthy();
   expect(validateOperationalCommitment({...complete,claim:"The revised onboarding sequence."}).claim).toBeTruthy();
  });
+});
+describe("audit presentation helpers",()=>{
+ const enumValues=["aligned","partially_aligned","inconsistent","insufficient_evidence","supports","does_not_refute","inconclusive","contradicts","prediction","refutation_condition","interpretation","confidence","rival_explanations","evidence_standard","next_experiment","consistent","partially_consistent","not_assessable","possibly_excessive","possibly_insufficient","high","medium","low"];
+ it("humanizes every current enum value and future unknown values",()=>{for(const value of enumValues){const label=formatEnumLabel(value);expect(label).not.toContain("_");expect(label).toBe(label.toUpperCase());expect(label.length).toBeGreaterThan(2);}expect(formatDimensionLabel("rival_explanations")).toBe("RIVAL EXPLANATIONS");expect(formatRelationshipLabel("does_not_refute")).toBe("DOES NOT REFUTE");expect(formatEnumLabel("future_schema_value")).toBe("FUTURE SCHEMA VALUE");expect(formatEnumLabel(undefined)).toBe("UNAVAILABLE");});
+ it("keeps normalized verdict labels human-readable",()=>{expect(normalizedVerdictLabel("partially_aligned" as any)).toBe("PARTIALLY ALIGNED");expect(normalizedVerdictLabel(undefined)).toBe("LEGACY AUDIT");});
+});
+
+describe("audit presentation structure",()=>{
+ const page=readFileSync("app/page.tsx","utf8");
+ const css=readFileSync("app/globals.css","utf8");
+ it("renders normalized verdict before comparison without a competing Verdict prefix",()=>{expect(page.indexOf("audit-hero")).toBeLessThan(page.indexOf("audit-grid"));expect(page).toContain(".replace(/^\\s*Verdict:");expect(page).not.toContain("<h2 tabIndex={-1}>Verdict:");});
+ it("renders relationship status separately from explanation prose",()=>{expect(page).toContain("<label>RELATIONSHIP</label><strong>{formatRelationshipLabel(d.relationship)}</strong>");expect(page).not.toContain("{d.relationship}: {d.explanation}");});
+ it("structures surviving rivals and legacy string-only rivals",()=>{expect(page).toContain("SURVIVING RIVAL");expect(page).toContain("typeof r===\"string\"");expect(page).toContain("whyItSurvives");expect(page).toContain("whatWouldTestIt");});
+ it("structures next experiment arrays without empty lists",()=>{expect(page).toContain("DISCRIMINATING POWER");expect(page).toContain("WOULD HELP RESOLVE");expect(page).toContain("WOULD STILL LEAVE OPEN");expect(page).toContain("if(!items?.length)return null");});
+ it("polishes fingerprint and local history without storing full records",()=>{expect(page).toContain("Open record");expect(page).toContain("Remove from device");expect(page).toContain("beforeEvidenceHistory");expect(page).not.toContain("localStorage.setItem(\"beforeEvidenceHistory\",JSON.stringify(exportRecord");expect(css).toContain(".verify textarea{display:block;width:100%;max-width:none");expect(css).toContain("overflow-wrap:anywhere");});
+ it("defines responsive stacking and touch/focus affordances",()=>{expect(css).toContain("grid-template-columns:repeat(3,minmax(0,1fr))");expect(css).toContain("grid-template-columns:1fr");expect(css).toContain("min-height:44px");expect(css).toContain(":focus-visible");expect(css).toContain("prefers-reduced-motion:reduce");});
 });
