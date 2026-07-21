@@ -8,3 +8,4 @@
 @keyframes sealIn{from{opacity:.75;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
 @media(prefers-reduced-motion:reduce){.sealed-ready{animation:none!important}}
 @media(max-width:700px){.sealed-head{display:block}.sealed-head strong{margin-top:8px}.prior-standard p{grid-template-columns:1fr;gap:4px}}
+.audit-meta{border-top:1px solid var(--line);margin-top:18px;padding-top:18px}.audit-meta p{display:grid;grid-template-columns:170px 1fr;gap:14px;margin:10px 0;line-height:1.45}.audit-meta b{font:10px 'DM Mono';letter-spacing:.12em;color:var(--muted);text-transform:uppercase}@media(max-width:700px){.audit-meta p{grid-template-columns:1fr;gap:4px}}
