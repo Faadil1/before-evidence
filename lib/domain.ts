@@ -2,8 +2,10 @@
 
 export const scenarioId = "onboarding-effect";
 export const scenarioVersion = "2026.07.20-A";
-export const commitmentSchema = z.object({claim:z.string().min(10),confidence:z.number().min(0).max(100),rival1:z.string().min(5),rival2:z.string().min(5),prediction:z.string().min(5),refutation:z.string().min(10),design:z.string().min(10)});
-export const interpretationSchema = z.object({interpretation:z.string().min(10),updatedConfidence:z.number().min(0).max(100),proposedNextExperiment:z.string().min(10)});
+const text=(min:number)=>z.string().transform(v=>v.trim()).pipe(z.string().min(min));
+const interpretationText=text(40).refine(v=>!/^\s*[^.!]*\?\s*$/.test(v),"Interpretation cannot be only a question.").refine(v=>/\b(implies|suggests|shows|means|supports|indicates|demonstrates)\b/i.test(v),"Interpretation must state what the evidence implies.");
+export const commitmentSchema = z.object({claim:text(20),confidence:z.number().min(0).max(100),rival1:text(15),rival2:text(15),prediction:text(15),refutation:text(20),design:text(25)});
+export const interpretationSchema = z.object({interpretation:interpretationText,updatedConfidence:z.number().min(0).max(100),proposedNextExperiment:text(25)});
 export const auditSchema = z.object({verdict:z.string(),refutationStandard:z.object({triggered:z.boolean(),detail:z.string()}),confidenceCalibration:z.object({expectedDirection:z.string(),proportionate:z.boolean(),detail:z.string()}),interpretationQuality:z.object({unsupportedClaims:z.array(z.string()),detail:z.string()}),survivingRivals:z.array(z.string()),strongestNextExperiment:z.string()});
 export type Commitment=z.infer<typeof commitmentSchema>; export type Interpretation=z.infer<typeof interpretationSchema>; export type Audit=z.infer<typeof auditSchema>;
 export type Session={sessionId:string;scenarioId:string;scenarioVersion:string;status:"open"|"locked"|"revealed"|"interpreted"|"audited";commitment?:Commitment;lockedAt?:string;evidenceVersion?:string;evidenceRevealedAt?:string;interpretation?:string;updatedConfidence?:number;proposedNextExperiment?:string;audit?:Audit;createdAt?:string;updatedAt?:string};

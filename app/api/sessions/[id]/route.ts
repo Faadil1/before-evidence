@@ -1,0 +1,2 @@
+﻿import { NextResponse } from "next/server"; import { fixedEvidence } from "../../../../lib/domain"; import { getSession } from "../../../../lib/store";
+export async function GET(_req:Request,{params}:{params:Promise<{id:string}>}){const {id}=await params;const s=await getSession(id);if(!s)return NextResponse.json({error:"Session not found."},{status:404});const evidence=s.evidenceRevealedAt?fixedEvidence:undefined;return NextResponse.json({session:s,evidence});}
