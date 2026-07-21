@@ -9,3 +9,9 @@ export function cancelSeal(status:"open"|"locked"){return {status,lockCalled:fal
 export function confirmSeal(status:"open"|"locked"){return {status,lockCalled:status==="open"};}
 export function isPostLockReadOnly(status:string){return status!=="open";}
 export function validateInterpretationDraft(interpretation:string,nextExperiment:string){const errors:Record<string,string>={};const text=interpretation.trim();if(text.length<40)errors.interpretation="Write at least 40 characters about what the evidence implies.";else if(/^\s*[^.!]*\?\s*$/.test(text))errors.interpretation="The interpretation cannot be only a question.";else if(!/\b(implies|suggests|shows|means|supports|indicates|demonstrates)\b/i.test(text))errors.interpretation="State what the evidence implies.";if(nextExperiment.trim().length<25)errors.next="Enter a next experiment of at least 25 characters.";return errors;}
+export function formatSealedAt(value?:string){if(!value)return "Sealed timestamp unavailable";return `Sealed ${new Intl.DateTimeFormat("en-US",{month:"long",day:"numeric",year:"numeric",hour:"numeric",minute:"2-digit",timeZoneName:"short"}).format(new Date(value))}`;}
+export function confidenceDelta(initial:number,updated:number){const delta=updated-initial;if(delta>0)return `+${delta} points`;if(delta<0)return `${delta} points`;return "No confidence change";}
+export const sealedHeaderUsesDocumentFlow=true;
+export const auditHierarchy=["verdict","comparison","details"] as const;
+export function auditCanSubmit(auditStatus?:string){return auditStatus!=="pending"&&auditStatus!=="completed";}
+export function recoverableAuditMessage(auditStatus?:string){if(auditStatus==="pending")return "Your interpretation is saved. The previous audit did not complete after refresh. Retry when ready.";if(auditStatus==="failed")return "Your sealed record and interpretation are safe. Retry the audit when ready.";return "";}
